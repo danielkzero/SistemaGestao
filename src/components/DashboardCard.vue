@@ -2,7 +2,7 @@
 <template>
     <div class="col-span-12 lg:col-span-6 xl:col-span-3">
         <div class="card mb-0">
-            <div class="flex justify-between mb-4">
+            <div class="flex justify-between">
                 <div>
                     <span class="block text-muted-color font-medium mb-4">{{ titulo }}</span>
                     <div class="text-surface-900 dark:text-surface-0 font-medium text-xl">{{ valor }}</div>

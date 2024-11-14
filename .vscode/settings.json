@@ -14,10 +14,10 @@
     },
     "[typescript]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.formatOnSave": true
+        "editor.formatOnSave": false
     },
     "[json]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.formatOnSave": true
+        "editor.formatOnSave": false
     }
 }

@@ -1,3 +1,5 @@
+@use "mixins";
+
 .layout-topbar {
     position: fixed;
     height: 4rem;
@@ -27,11 +29,11 @@
         gap: 0.5rem;
 
         svg {
-            width: 6rem;
+            width: 7rem;
         }
 
         &:focus-visible {
-            @include focused();
+            @include mixins.focused();
         }
     }
 
@@ -52,7 +54,7 @@
         }
 
         &:focus-visible {
-            @include focused();
+            @include mixins.focused();
         }
 
         i {

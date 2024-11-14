@@ -1,7 +1,19 @@
 :root {
+    --p-primary-color: var(--p-primary-400) !important;
+    --p-primary-50: #fff7ed !important;
+    --p-primary-100: #ffedd5 !important;
+    --p-primary-200: #fed7aa !important;
+    --p-primary-300: #fdba74 !important;
+    --p-primary-400: #fb923c !important;
+    --p-primary-500: #f97316 !important;
+    --p-primary-600: #ea580c !important;
+    --p-primary-700: #c2410c !important;
+    --p-primary-800: #9a3412 !important;
+    --p-primary-900: #7c2d12 !important;
+    --p-primary-950: #431407 !important;    
+
     --primary-color: var(--p-primary-color);
     --primary-contrast-color: var(--p-primary-contrast-color);
-    --secondary-color: var(--text-secondary-color);
     --text-color: var(--p-text-color);
     --text-color-secondary: var(--p-text-muted-color);
     --surface-border: var(--p-content-border-color);

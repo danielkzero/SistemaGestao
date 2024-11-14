@@ -11,7 +11,7 @@ const router = createRouter({
                 {
                     path: '/',
                     name: 'dashboard',
-                    component: () => import('@/views/Dashboard.vue')
+                    component: () => import('@/views/DashboardPrincipal.vue')
                 },
                 {
                     path: '/uikit/formlayout',

@@ -1,11 +1,12 @@
+<!-- eslint-disable prettier/prettier -->
 <template>
-    <div class="layout-topbar">
+    <div class="card layout-topbar">
         <div class="layout-topbar-logo-container">
             <button class="layout-menu-button layout-topbar-action" @click="onMenuToggle">
                 <i class="pi pi-bars"></i>
             </button>
             <router-link to="/" class="layout-topbar-logo">
-                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 260 71" width="520" height="142">
+                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 260 71" >
                     <g clip-path="url(#_clipPath_58DfDmtmNp5BIgenT3ZoEseKRuTbdQoD)">
                         <path
                             d=" M 30.193 42.384 L 30.193 30.023 L 55.766 30.023 L 55.766 61.958 L 55.766 61.958 Q 45.35 65.525 32.868 65.525 L 32.868 65.525 L 32.868 65.525 Q 19.169 65.525 11.692 57.582 L 11.692 57.582 L 11.692 57.582 Q 4.215 49.638 4.215 34.927 L 4.215 34.927 L 4.215 34.927 Q 4.215 20.58 12.401 12.596 L 12.401 12.596 L 12.401 12.596 Q 20.588 4.612 35.34 4.612 L 35.34 4.612 L 35.34 4.612 Q 40.933 4.612 45.897 5.666 L 45.897 5.666 L 45.897 5.666 Q 50.862 6.72 54.55 8.341 L 54.55 8.341 L 49.484 20.904 L 49.484 20.904 Q 43.081 17.743 35.421 17.743 L 35.421 17.743 L 35.421 17.743 Q 28.41 17.743 24.58 22.302 L 24.58 22.302 L 24.58 22.302 Q 20.75 26.862 20.75 35.332 L 20.75 35.332 L 20.75 35.332 Q 20.75 43.64 24.215 47.997 L 24.215 47.997 L 24.215 47.997 Q 27.68 52.354 34.205 52.354 L 34.205 52.354 L 34.205 52.354 Q 37.771 52.354 40.771 51.665 L 40.771 51.665 L 40.771 42.384 L 30.193 42.384 L 30.193 42.384 Z "
@@ -25,23 +26,6 @@
                 <button type="button" class="layout-topbar-action" @click="toggleDarkMode">
                     <i :class="['pi', { 'pi-moon': isDarkTheme, 'pi-sun': !isDarkTheme }]"></i>
                 </button>
-                <div class="relative">
-                    <button
-                        v-styleclass="{
-                            selector: '@next',
-                            enterFromClass: 'hidden',
-                            enterActiveClass: 'animate-scalein',
-                            leaveToClass: 'hidden',
-                            leaveActiveClass: 'animate-fadeout',
-                            hideOnOutsideClick: true
-                        }"
-                        type="button"
-                        class="layout-topbar-action layout-topbar-action-highlight"
-                    >
-                        <i class="pi pi-palette"></i>
-                    </button>
-                    <AppConfigurator />
-                </div>
             </div>
 
             <button

@@ -31,6 +31,7 @@ export default {
                         },
                     ],
                 },
+                /*
                 {
                     label: "Relatórios",
                     items: [
@@ -65,7 +66,7 @@ export default {
                             ],
                         },
                     ],
-                },
+                },*/
                 {
                     label: "Informações do sistema",
                     items: [
@@ -73,12 +74,6 @@ export default {
                             label: "Documentação",
                             icon: "pi pi-fw pi-book",
                             to: "/documentation",
-                        },
-                        {
-                            label: "View Source",
-                            icon: "pi pi-fw pi-github",
-                            url: "https://github.com/primefaces/sakai-vue",
-                            target: "_blank",
                         },
                     ],
                 },

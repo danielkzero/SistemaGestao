@@ -1,8 +1,8 @@
 <template>
     <div class="grid grid-cols-12 gap-8">
-        <DashboardCard titulo="Pedidos" valor="152" descricao="24 novos desde a última visita" icon="pi-shopping-cart" iconColor="text-blue-500" bgColor="bg-blue-100" />
-        <DashboardCard titulo="Receita" valor="R$2.100" descricao="+52% em relação à semana passada" icon="pi-dollar" iconColor="text-orange-500" bgColor="bg-orange-100" />
-        <DashboardCard titulo="Clientes" valor="28.441" descricao="520 novos registros" icon="pi-users" iconColor="text-cyan-500" bgColor="bg-cyan-100" />
+        <DashboardCard titulo="Pedidos" :valor="quantidadePedidos" descricao="24 novos desde a última visita" icon="pi-shopping-cart" iconColor="text-blue-500" bgColor="bg-blue-100" />
+        <DashboardCard titulo="Receita" :valor="formatCurrency(valorTotalPedidos)" descricao="+52% em relação à semana passada" icon="pi-dollar" iconColor="text-orange-500" bgColor="bg-orange-100" />
+        <DashboardCard titulo="Clientes" :valor="quantidadeClientesUnicos" descricao="520 novos registros" icon="pi-users" iconColor="text-cyan-500" bgColor="bg-cyan-100" />
         <div class="col-span-12 lg:col-span-6 xl:col-span-3">
             <div class="card mb-0 min-h-44">
                 <div class="flex justify-between">
@@ -13,7 +13,7 @@
                             <span class="text-xl">/4M</span>
                         </div>
                         <div class="mt-3">
-                            R$ 2.000.000,00
+                            {{ formatCurrency(valorTotalPedidos) }}
                         </div>
                     </div>
                     <div>
@@ -29,7 +29,8 @@
 
         <div class="col-span-12 xl:col-span-6">
             <div class="card">
-                <div class="font-semibold text-xl mb-4">Clientes ativos e inativos</div>
+                <div class="font-semibold text-xl">Clientes ativos e inativos</div>
+                <div class="text-xl mb-5 text-muted-color" style="font-size: 0.8rem;">Últimos 24 meses</div>
                 <Chart type="bar" :data="chartData" :options="chartOptions" class="h-80" />
             </div>
             <CardNotificacao />
@@ -37,108 +38,151 @@
     </div>
 </template>
 
-<script setup>
+<script>
 import CardMelhoresVendas from '@/components/CardMelhoresVendas.vue';
 import CardNotificacao from '@/components/CardNotificacao.vue';
 import DashboardCard from '@/components/DashboardCard.vue';
 import DashboardVendasRecentes from '@/components/DashboardVendasRecentes.vue';
-import { useLayout } from '@/layout/composables/layout';
-import { ProductService } from '@/service/ProductService';
-import { onMounted, ref, watch } from 'vue';
+import axios from 'axios';
+export default {
+    components: {
+        CardMelhoresVendas,
+        CardNotificacao,
+        DashboardCard,
+        DashboardVendasRecentes
+    },
+    data() {
+        return {
+            products: null,
+            chartData: null,
+            chartOptions: null,
+            value: 50,
+            quantidadePedidos: 0,
+            valorTotalPedidos: 0,
+            quantidadeClientesUnicos: 0
+        };
+    },
+    methods: {
+        async setChartData() {
+            const documentStyle = getComputedStyle(document.documentElement);
 
-const { getPrimary, getSurface, isDarkTheme } = useLayout();
+            try {
+                // Realiza a chamada ao endpoint e processa os dados
+                const response = await axios.get('http://192.168.102.9/api/relatorio/pedido/clientesativosinativos');
+                if (response.status === 200) {
+                    const data = response.data;
 
-const products = ref(null);
-const chartData = ref(null);
-const chartOptions = ref(null);
+                    // Agrupa e soma a quantidade de clientes por estado e status
+                    const groupedData = data.reduce((acc, curr) => {
+                        const estado = curr.estado;
+                        const status = curr.status_cliente; // 'ativo' ou 'inativo'
 
-const items = ref([
-    { label: 'Add New', icon: 'pi pi-fw pi-plus' },
-    { label: 'Remove', icon: 'pi pi-fw pi-trash' }
-]);
+                        if (!acc[estado]) {
+                            acc[estado] = { ativo: 0, inativo: 0 };
+                        }
+                        acc[estado][status] += parseInt(curr.quantidade);
+                        return acc;
+                    }, {});
 
-const value = ref(50);
-onMounted(() => {
-    ProductService.getProductsSmall().then((data) => (products.value = data));
-    chartData.value = setChartData();
-    chartOptions.value = setChartOptions();
-});
+                    // Extrai estados e quantidades para o gráfico
+                    const labels = Object.keys(groupedData);
+                    const dataAtivos = labels.map((estado) => groupedData[estado].ativo);
+                    const dataInativos = labels.map((estado) => groupedData[estado].inativo);
 
-function setChartData() {
-    const documentStyle = getComputedStyle(document.documentElement);
-    const estados = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];
+                    console.log(labels, dataAtivos, dataInativos);
 
-    // Embaralha os estados e pega os primeiros 10
-    const labels = estados.sort(() => 0.5 - Math.random()).slice(0, 10);
-
-    // Função para gerar um número aleatório dentro de um intervalo
-    const randomValue = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-
-    // Gera valores aleatórios para clientes ativos e inativos para cada estado
-    const dataAtivos = labels.map(() => randomValue(5, 30));
-    const dataInativos = labels.map(() => randomValue(10, 70));
-
-    return {
-        labels,
-        datasets: [
-            {
-                type: 'bar',
-                label: 'Clientes ativos',
-                backgroundColor: documentStyle.getPropertyValue('--p-primary-400'),
-                data: dataAtivos,
-                barThickness: 32
-            },
-            {
-                type: 'bar',
-                label: 'Clientes inativos',
-                backgroundColor: documentStyle.getPropertyValue('--p-primary-300'),
-                data: dataInativos,
-                barThickness: 32
+                    // Define os dados do gráfico
+                    this.chartData = {
+                        labels,
+                        datasets: [
+                            {
+                                type: 'bar',
+                                label: 'Clientes ativos',
+                                backgroundColor: documentStyle.getPropertyValue('--p-primary-400'),
+                                data: dataAtivos,
+                                barThickness: 20
+                            },
+                            {
+                                type: 'bar',
+                                label: 'Clientes inativos',
+                                backgroundColor: documentStyle.getPropertyValue('--p-primary-300'),
+                                data: dataInativos,
+                                barThickness: 20
+                            }
+                        ]
+                    };
+                }
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
             }
-        ]
-    };
-}
+        },
+        setChartOptions() {
+            const documentStyle = getComputedStyle(document.documentElement);
+            const borderColor = documentStyle.getPropertyValue('--surface-border');
+            const textMutedColor = documentStyle.getPropertyValue('--text-color-secondary');
 
-function setChartOptions() {
-    const documentStyle = getComputedStyle(document.documentElement);
-    const borderColor = documentStyle.getPropertyValue('--surface-border');
-    const textMutedColor = documentStyle.getPropertyValue('--text-color-secondary');
-
-    return {
-        maintainAspectRatio: false,
-        aspectRatio: 0.8,
-        scales: {
-            x: {
-                stacked: true,
-                ticks: {
-                    color: textMutedColor
-                },
-                grid: {
-                    color: 'transparent',
-                    borderColor: 'transparent'
+            return {
+                maintainAspectRatio: false,
+                aspectRatio: 0.8,
+                scales: {
+                    x: {
+                        stacked: true,
+                        ticks: {
+                            color: textMutedColor
+                        },
+                        grid: {
+                            color: 'transparent',
+                            borderColor: 'transparent'
+                        }
+                    },
+                    y: {
+                        stacked: true,
+                        ticks: {
+                            color: textMutedColor
+                        },
+                        grid: {
+                            color: borderColor,
+                            borderColor: 'transparent',
+                            drawTicks: false
+                        }
+                    }
                 }
-            },
-            y: {
-                stacked: true,
-                ticks: {
-                    color: textMutedColor
-                },
-                grid: {
-                    color: borderColor,
-                    borderColor: 'transparent',
-                    drawTicks: false
-                }
+            };
+        },
+        formatCurrency(value) {
+            return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        },
+        updateChart() {
+            this.chartData = this.setChartData();
+            this.chartOptions = this.setChartOptions();
+        },
+        async getPedidosRecentes() {
+            const response = await axios.get('http://192.168.102.9/api/relatorio/pedido/recentes');
+            if (response.status == 200) {
+                this.products = response.data;
+                this.quantidadePedidos = response.data.length;
+                this.valorTotalPedidos = this.products.reduce((total, product) => total * 1 + product.total * 1, 0);
+                this.quantidadeClientesUnicos = this.products.reduce((acc, product) => {
+                    if (!acc.includes(product.codigo)) {
+                        acc.push(product.codigo);
+                    }
+                    return acc;
+                }, []).length;
             }
         }
-    };
-}
-
-const formatCurrency = (value) => {
-    return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+    },
+    mounted() {
+        this.getPedidosRecentes();
+        this.setChartData();
+        this.setChartOptions();
+        //ProductService.getProductsSmall().then((data) => (this.products = data));
+        this.chartData = this.setChartData();
+        this.chartOptions = this.setChartOptions();
+    },
+    watch: {
+        '$root.isDarkTheme': 'updateChart',
+        '$root.primary': 'updateChart',
+        '$root.surface': 'updateChart'
+    }
 };
-
-watch([getPrimary, getSurface, isDarkTheme], () => {
-    chartData.value = setChartData();
-    chartOptions.value = setChartOptions();
-});
 </script>
