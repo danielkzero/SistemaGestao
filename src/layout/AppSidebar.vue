@@ -1,5 +1,10 @@
-<script setup>
-import AppMenu from './AppMenu.vue';
+<script>
+import AppMenu from "./AppMenu.vue";
+export default {
+    components: {
+        AppMenu,
+    },
+};
 </script>
 
 <template>

@@ -103,6 +103,11 @@ const router = createRouter({
                     path: '/documentation',
                     name: 'documentation',
                     component: () => import('@/views/pages/Documentation.vue')
+                },
+                {
+                    path: '/agenda',
+                    name: 'agenda',
+                    component: () => import('@/views/pages/Agenda.vue')
                 }
             ]
         },
