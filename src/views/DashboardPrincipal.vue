@@ -20,38 +20,65 @@
                     <Button label="Salvar Dashboard" icon="pi pi-save" @click="salvarDashboard" :disabled="selectedDashboards.length <= 0" />
                     <!-- Botão para carregar estado do dashboard -->
                 </div>
-                <div v-if="abrirPainelInferior">
-                    <div class="flex justify-center w-full gap-4 pt-3 mt-4 border-t-2">
-                        <div class="field">
-                            <label for="periodo">Período:</label>
-                            <Select v-model="configuracaoSelecionada.periodo" :options="opcoesPeriodo" optionLabel="label" optionValue="value" class="w-full"> </Select>
-                        </div>
-                        <div class="field">
-                            <label for="status">Empresas</label>
-                            <MultiSelect v-model="configuracaoSelecionada.empresa" filter class="w-full" :options="opcoesEmpresa" optionLabel="label" optionValue="value" placeholder="Selecione as empresas" />
-                        </div>
-                        <div class="field">
-                            <label for="status">Represenantes</label>
-                            <MultiSelect
-                                v-model="configuracaoSelecionada.representante"
-                                filter
-                                filterPlaceholder="Digite para buscar..."
-                                class="w-full"
-                                :options="opcoesRepresentante"
-                                optionLabel="label"
-                                optionValue="value"
-                                placeholder="Selecione os representantes"
-                            />
-                        </div>
-                        <div class="field">
-                            <label for="status">Status</label>
-                            <MultiSelect v-model="configuracaoSelecionada.status" filter class="w-full" :options="opcoesStatus" optionLabel="label" optionValue="value" placeholder="Selecione os status" />
-                        </div>
-                        <div class="field mt-6">
-                            <Button label="Aplicar a todos" icon="pi pi-check" @click="aplicarConfiguracaoATodos" />
+                <Transition name="fade-slide">
+                    <div v-if="abrirPainelInferior">
+                        <div class="grid grid-cols-12 gap-2">
+                            <div class="col-span-12 lg:col-span-12 xl:col-span-12">
+                                <div class="flex justify-start w-full gap-4 pt-3 mt-4 border-t-2">
+                                    <div class="field">
+                                        <label for="periodo">Período:</label>
+                                        <Select v-model="configuracaoSelecionada.periodo" :options="opcoesPeriodo" optionLabel="label" optionValue="value" class="w-full"> </Select>
+                                    </div>
+                                    <div class="field">
+                                        <label for="status">Empresas</label>
+                                        <MultiSelect v-model="configuracaoSelecionada.empresa" filter class="w-full" :options="opcoesEmpresa" optionLabel="label" optionValue="value" placeholder="Selecione as empresas" />
+                                    </div>
+                                    <div class="field">
+                                        <label for="status">Represenantes</label>
+                                        <MultiSelect
+                                            v-model="configuracaoSelecionada.representante"
+                                            filter
+                                            filterPlaceholder="Digite para buscar..."
+                                            class="w-full"
+                                            :options="opcoesRepresentante"
+                                            optionLabel="label"
+                                            optionValue="value"
+                                            placeholder="Selecione os representantes"
+                                        />
+                                    </div>
+                                    <div class="field">
+                                        <label for="status">Status</label>
+                                        <MultiSelect v-model="configuracaoSelecionada.status" filter class="w-full" :options="opcoesStatus" optionLabel="label" optionValue="value" placeholder="Selecione os status" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-span-12 lg:col-span-12 xl:col-span-12">
+                                <div class="flex justify-start w-full gap-4">
+                                    <div class="field">
+                                        <label for="metas">Meta geral</label>
+                                        <InputNumber v-model="MetasGeral" inputId="integeronly" fluid />
+                                    </div>
+                                    <div class="field" v-for="item in ListaMetas">
+                                        <label for="metas">Meta {{ item.nome }}</label>
+                                        <InputText id="metas" variant="filled" class="w-full" :value="formatCurrency(MetasGeral * item.valor, 2)" />
+                                        <template v-if="item.nome == 'valeplast' || item.nome == 'global' || item.nome == 'televendas'">
+                                            <strong>{{ formatCurrency((MetasGeral * item.valor) / PopulacaoTotal, 3) }}</strong> <small>/ habitante</small>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-span-12 lg:col-span-12 xl:col-span-12">
+                                <div class="flex justify-start w-full gap-4">
+                                    <div class="field">
+                                        <Button label="Aplicar a todos" icon="pi pi-check" @click="aplicarConfiguracaoATodos" />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </Transition>
             </div>
         </div>
         <Dialog header="Editando nome do Dashboard" v-model:visible="openModalDashboardNomeEdit" :style="{ width: '30rem' }">
@@ -202,6 +229,7 @@
 import DashboardVendasRecentes from '@/components/DashboardVendasRecentes.vue';
 import GraficoMensagem from '@/components/GraficoMensagem.vue';
 import IbgeData from '@/components/IbgeData.vue';
+import formatCurrency from '@/service/Converts';
 import { graficosPreConfigurados } from '@/service/graficosPreConfigurados';
 import uniqid from '@/service/Uniqid';
 import axios from 'axios';
@@ -215,8 +243,13 @@ export default {
         return {
             MetasGeral: 4400000,
             ListaMetas: [
-                { nome: "", tipo: "p" }
+                { nome: 'ecommerce', tipo: 'p', valor: 0.0227272727272727 },
+                { nome: 'licitação', tipo: 'p', valor: 0.0113636363636364 },
+                { nome: 'televendas', tipo: 'p', valor: 0.227272727272727 },
+                { nome: 'global', tipo: 'p', valor: 0.221590909090909 },
+                { nome: 'valeplast', tipo: 'p', valor: 0.517045454545455 }
             ],
+            PopulacaoTotal: 190825817,
             NomeDashboard: null,
             editedDashboard: null,
             openModalDashboardNomeEdit: false,
@@ -254,6 +287,7 @@ export default {
         }
     },
     methods: {
+        formatCurrency,
         editDashboardName(dashboard) {
             this.editedDashboard = dashboard;
             this.openModalDashboardNomeEdit = true;
@@ -501,3 +535,25 @@ export default {
     }
 };
 </script>
+<style>
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+    transition: all 0.3s ease;
+}
+.fade-slide-enter-from {
+    opacity: 0;
+    transform: translateY(0px);
+}
+.fade-slide-enter-to {
+    opacity: 1;
+    transform: translateY(10px);
+}
+.fade-slide-leave-from {
+    opacity: 1;
+    transform: translateY(10px);
+}
+.fade-slide-leave-to {
+    opacity: 0;
+    transform: translateY(0px);
+}
+</style>
